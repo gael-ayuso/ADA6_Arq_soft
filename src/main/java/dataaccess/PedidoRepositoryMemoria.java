@@ -1,12 +1,12 @@
 package dataaccess;
 
-import business.Pedido;
-import data.BaseDatosMemoria;
+import business.models.Pedido;
 
 import java.util.Map;
 
 public class PedidoRepositoryMemoria implements PedidoRepository {
     private final Map<Integer, Pedido> baseDatosMemoria;
+    private int secuenciaId = 1;
 
     public PedidoRepositoryMemoria(Map<Integer, Pedido> baseDatosMemoria) {
         this.baseDatosMemoria = baseDatosMemoria;
@@ -14,6 +14,9 @@ public class PedidoRepositoryMemoria implements PedidoRepository {
 
     @Override
     public int guardar(Pedido pedido) {
+        if (pedido.getId() <= 0) {
+            pedido.setId(secuenciaId++);
+        }
         baseDatosMemoria.put(pedido.getId(), pedido);
         return pedido.getId();
     }

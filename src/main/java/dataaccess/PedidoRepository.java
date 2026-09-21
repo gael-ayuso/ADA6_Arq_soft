@@ -1,6 +1,6 @@
 package dataaccess;
 
-import business.Pedido;
+import business.models.Pedido;
 
 public interface PedidoRepository {
     int guardar(Pedido pedido);
