@@ -1,6 +1,7 @@
 package business.services.filtros;
 
 
+import business.models.EstadoPedido;
 import business.models.Pedido;
 
 public class AplicarDescuento implements Filtro{
@@ -19,8 +20,10 @@ public class AplicarDescuento implements Filtro{
             double descuento = pedido.getSubtotal() * PORCENTAJE_DESCUENTO;
 
             pedido.setDescuento(descuento);
+            pedido.setEstado(EstadoPedido.PEDIDO_CON_DESCUENTO);
         } else {
             pedido.setDescuento(0);
+            pedido.setEstado(EstadoPedido.PEDIDO_SIN_DESCUENTO);
         }
 
         return pedido;
