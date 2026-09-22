@@ -1,6 +1,6 @@
 import business.PedidoService;
-import dataaccess.PedidoRepository;
-import dataaccess.PedidoRepositoryArchivo;
+import dataaccess.pedido.PedidoRepository;
+import dataaccess.pedido.PedidoRepositoryArchivo;
 import ui.PedidoVista;
 import ui.PedidoVistaConsola;
 import ui.PedidoVistaGUI;

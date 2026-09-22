@@ -1,4 +1,4 @@
-package dataaccess;
+package dataaccess.pedido;
 
 import business.models.Pedido;
 

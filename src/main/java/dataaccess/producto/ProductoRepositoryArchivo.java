@@ -1,4 +1,4 @@
-package dataaccess;
+package dataaccess.producto;
 
 import business.models.Producto;
 

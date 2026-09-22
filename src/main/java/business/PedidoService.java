@@ -3,9 +3,10 @@ package business;
 import business.models.Pedido;
 import business.services.Tuberia;
 import business.services.filtros.*;
-import dataaccess.PedidoRepository;
-import dataaccess.ProductoRepository;
-import dataaccess.ProductoRepositoryArchivo;
+import dataaccess.pedido.PedidoRepository;
+import dataaccess.producto.ProductoRepository;
+import dataaccess.producto.ProductoRepositoryArchivo;
+
 
 import java.util.List;
 
