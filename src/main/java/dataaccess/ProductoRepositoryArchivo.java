@@ -8,17 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Acceso a datos para el catalogo de productos desde un archivo plano CSV/TXT.
- * Permite desacoplar los productos disponibles del codigo fuente de la interfaz.
+ * Implementacion concreta de ProductoRepository que carga los productos
+ * desde un archivo plano CSV/TXT delimitado por comas.
  */
-public class CatalogoProductosArchivo {
+public class ProductoRepositoryArchivo implements ProductoRepository {
     private static final String ARCHIVO_DEFECTO = "productos.csv";
+    private final String rutaArchivo;
 
-    public static List<Producto> cargarCatalogo() {
-        return cargarCatalogo(ARCHIVO_DEFECTO);
+    public ProductoRepositoryArchivo() {
+        this(ARCHIVO_DEFECTO);
     }
 
-    public static List<Producto> cargarCatalogo(String rutaArchivo) {
+    public ProductoRepositoryArchivo(String rutaArchivo) {
+        this.rutaArchivo = rutaArchivo;
+    }
+
+    @Override
+    public List<Producto> obtenerTodos() {
         List<Producto> productos = new ArrayList<>();
         File archivo = new File(rutaArchivo);
 
@@ -49,13 +55,13 @@ public class CatalogoProductosArchivo {
                 }
             }
         } catch (Exception e) {
-            System.err.println("[ERROR] Error al cargar catalogo de productos: " + e.getMessage());
+            System.err.println("[ERROR] Error al cargar productos desde archivo: " + e.getMessage());
         }
 
         return productos;
     }
 
-    private static void crearArchivoPorDefecto(File archivo) {
+    private void crearArchivoPorDefecto(File archivo) {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(archivo), StandardCharsets.UTF_8))) {
             writer.write("nombre,precio,existencia\n");
             writer.write("Laptop Gamer,1500.0,5\n");
