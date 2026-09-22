@@ -41,10 +41,6 @@ public class PedidoService {
         return procesado;
     }
 
-    /**
-     * Registra un pedido aplicando las reglas de negocio y persistiendo el resultado.
-     * Nombre de método según la especificación del requerimiento ADA6.
-     */
     public Pedido registrar(Pedido pedido) {
         return procesarYGuardar(pedido);
     }
