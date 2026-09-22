@@ -22,7 +22,7 @@ public class ValidarDatos implements Filtro{
             throw new RuntimeException("El pedido no puede estar vacio");
         }
 
-        // Regla de negocio ADA6: La cantidad solicitada debe ser mayor que cero
+        // La cantidad solicitada debe ser mayor que cero para cada producto
         for (Producto producto : pedido.getListaProductos()) {
             if (producto == null || producto.getCantidad() <= 0) {
                 throw new RuntimeException("La cantidad solicitada debe ser mayor que cero para cada producto");

@@ -37,9 +37,6 @@ public class PedidoService {
         this.tuberia = tuberia;
     }
 
-    /*public Pedido procesarPedido(Pedido pedido) {
-        return this.tuberia.procesarPedido(pedido);
-    }*/
 
     public Pedido procesarYGuardar(Pedido pedido) {
         Pedido procesado = this.tuberia.procesarPedido(pedido);
