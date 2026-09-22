@@ -6,14 +6,6 @@ import ui.PedidoVista;
 import ui.PedidoVistaConsola;
 import ui.PedidoVistaGUI;
 
-/**
- * Punto de entrada principal de la aplicacion.
- * Implementa el estilo arquitectonico en Capas (Layers):
- * 1. Capa de Presentacion: PedidoVistaGUI o PedidoVistaConsola (desacopladas via PedidoVista).
- * 2. Capa de Logica de Negocio: PedidoService.
- * 3. Capa de Acceso a Datos: PedidoRepository (PedidoRepositoryMemoria / PedidoRepositoryArchivo).
- * 4. Capa de Datos / Almacenamiento: Colecciones Java en memoria o Archivo de texto plano.
- */
 public class Main {
     public static void main(String[] args) {
         // 1. CAPA DE ACCESO A DATOS
