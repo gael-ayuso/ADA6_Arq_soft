@@ -10,9 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementación de persistencia de Pedidos basada en un archivo de texto plano.
- * Cumple con la segunda parte del requerimiento arquitectónico ADA6 para comprobar
- * la sustitución de componentes de persistencia sin alterar las capas superiores.
+ * Implementación de persistencia de Pedidos
  */
 public class PedidoRepositoryArchivo implements PedidoRepository {
     private static final String DEFAULT_FILE_PATH = "pedidos.txt";

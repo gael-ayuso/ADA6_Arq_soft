@@ -7,7 +7,6 @@ import business.models.Producto;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
     private JSpinner spnCantidad;
     private DefaultTableModel modeloTablaDetalle;
     private final List<Producto> productosOrdenActual = new ArrayList<>();
-    private JLabel lblMensajeRegistro = new JLabel("Listo para registrar pedido.");
+    private final JLabel lblMensajeRegistro = new JLabel("Listo para registrar pedido.");
 
     // Componentes para consulta y listado
     private JTextField txtBuscarId;
