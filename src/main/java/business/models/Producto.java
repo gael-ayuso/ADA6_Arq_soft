@@ -17,6 +17,10 @@ public class Producto {
         return existencia;
     }
 
+    public int getExistencia() {
+        return existencia;
+    }
+
     public int getCantidad() {
         return cantidad;
     }

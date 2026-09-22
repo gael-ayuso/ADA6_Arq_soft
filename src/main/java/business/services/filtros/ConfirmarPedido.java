@@ -10,9 +10,10 @@ public class ConfirmarPedido implements Filtro{
         if (pedido == null) {
             return null;
         }
-        if (!pedido.isRevisionFraude()) {
-            pedido.setEstado(EstadoPedido.PEDIDO_CONFIRMADO);
-
+        if (pedido.isRevisionFraude()) {
+            pedido.setEstado(EstadoPedido.PEDIDO_MARCADO_COMO_FRAUDE);
+        } else {
+            pedido.setEstado(EstadoPedido.PROCESADO);
         }
         return pedido;
 
