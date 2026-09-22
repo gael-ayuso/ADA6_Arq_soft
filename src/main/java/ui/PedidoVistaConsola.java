@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Implementación de la capa de presentación mediante interfaz de consola.
- * Cumple con la separación de responsabilidades:
+ * Implementacion de la capa de presentacion mediante interfaz de consola.
+ * Cumple con la separacion de responsabilidades:
  * - Captura datos y solicitudes del usuario.
  * - Invoca a la capa de negocio (PedidoService).
  * - Muestra resultados y errores sin calcular totales ni acceder a la persistencia directamente.
+ * - No contiene emojis para mantener una presentacion formal y profesional.
  */
 public class PedidoVistaConsola implements PedidoVista {
     private final PedidoService pedidoService;
@@ -29,13 +30,13 @@ public class PedidoVistaConsola implements PedidoVista {
         boolean salir = false;
         while (!salir) {
             System.out.println("\n========================================================");
-            System.out.println("      SISTEMA DE PEDIDOS - CAPA DE PRESENTACIÓN");
+            System.out.println("      SISTEMA DE PEDIDOS - CAPA DE PRESENTACION");
             System.out.println("========================================================");
             System.out.println("1. Registrar pedido");
             System.out.println("2. Consultar pedido por ID");
             System.out.println("3. Listar pedidos");
             System.out.println("4. Salir");
-            System.out.print("Seleccione una opción: ");
+            System.out.print("Seleccione una opcion: ");
 
             String opcion = scanner.nextLine().trim();
             switch (opcion) {
@@ -49,11 +50,11 @@ public class PedidoVistaConsola implements PedidoVista {
                     mostrarListadoPedidos();
                     break;
                 case "4":
-                    System.out.println("Saliendo de la aplicación...");
+                    System.out.println("[INFO] Saliendo de la aplicacion...");
                     salir = true;
                     break;
                 default:
-                    System.out.println("❌ Opción no válida. Intente de nuevo.");
+                    System.out.println("[ERROR] Opcion no valida. Intente de nuevo.");
             }
         }
     }
@@ -63,27 +64,33 @@ public class PedidoVistaConsola implements PedidoVista {
         System.out.print("Nombre del cliente: ");
         String cliente = scanner.nextLine().trim();
 
-        List<Producto> catalogo = obtenerCatalogoPredefinido();
+        List<Producto> catalogo = pedidoService.obtenerCatalogoProductos();
         List<Producto> productosSeleccionados = new ArrayList<>();
 
         boolean agregando = true;
         while (agregando) {
-            System.out.println("\nCatálogo de productos disponibles:");
+            System.out.println("\nCatalogo de productos disponibles:");
             for (int i = 0; i < catalogo.size(); i++) {
                 Producto prod = catalogo.get(i);
-                System.out.printf("  %d) %s - $%.2f (Stock: %d)%n",
+                System.out.printf("  %d) %s - $%.2f (Existencia: %d)%n",
                         (i + 1), prod.getNombre(), prod.getPrecio(), prod.getExistencia());
             }
-            System.out.printf("  %d) [Terminar y procesar pedido]%n", catalogo.size() + 1);
-            System.out.print("Seleccione un producto: ");
+            int opcPersonalizado = catalogo.size() + 1;
+            int opcTerminar = catalogo.size() + 2;
+
+            System.out.printf("  %d) [Ingresar producto personalizado manual]%n", opcPersonalizado);
+            System.out.printf("  %d) [Terminar y procesar pedido]%n", opcTerminar);
+            System.out.print("Seleccione una opcion: ");
 
             String input = scanner.nextLine().trim();
             try {
-                int opcProd = Integer.parseInt(input);
-                if (opcProd == catalogo.size() + 1) {
+                int seleccion = Integer.parseInt(input);
+                if (seleccion == opcTerminar) {
                     agregando = false;
-                } else if (opcProd >= 1 && opcProd <= catalogo.size()) {
-                    Producto seleccionado = catalogo.get(opcProd - 1);
+                } else if (seleccion == opcPersonalizado) {
+                    agregarProductoManual(productosSeleccionados);
+                } else if (seleccion >= 1 && seleccion <= catalogo.size()) {
+                    Producto seleccionado = catalogo.get(seleccion - 1);
                     System.out.print("Cantidad a solicitar de '" + seleccionado.getNombre() + "': ");
                     int cantidad = Integer.parseInt(scanner.nextLine().trim());
 
@@ -93,22 +100,40 @@ public class PedidoVistaConsola implements PedidoVista {
                             cantidad,
                             seleccionado.getExistencia()
                     ));
-                    System.out.println("✔ Producto agregado a la orden.");
+                    System.out.println("[OK] Producto agregado a la orden.");
                 } else {
-                    System.out.println("❌ Opción inválida.");
+                    System.out.println("[ERROR] Opcion fuera de rango.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("❌ Por favor ingrese un número válido.");
+                System.out.println("[ERROR] Debe ingresar un numero entero valido.");
             }
         }
 
         if (productosSeleccionados.isEmpty()) {
-            System.out.println("⚠️ No se seleccionaron productos. Operación cancelada.");
+            System.out.println("[AVISO] No se seleccionaron productos. Operacion cancelada.");
             return;
         }
 
         Pedido nuevoPedido = new Pedido(cliente, productosSeleccionados);
         procesarNuevoPedido(nuevoPedido);
+    }
+
+    private void agregarProductoManual(List<Producto> lista) {
+        try {
+            System.out.print("Nombre del producto: ");
+            String nombre = scanner.nextLine().trim();
+            System.out.print("Precio unitario: ");
+            double precio = Double.parseDouble(scanner.nextLine().trim());
+            System.out.print("Cantidad solicitada: ");
+            int cantidad = Integer.parseInt(scanner.nextLine().trim());
+            System.out.print("Existencia en inventario: ");
+            int existencia = Integer.parseInt(scanner.nextLine().trim());
+
+            lista.add(new Producto(nombre, precio, cantidad, existencia));
+            System.out.println("[OK] Producto personalizado agregado a la orden.");
+        } catch (NumberFormatException e) {
+            System.out.println("[ERROR] Datos numericos invalidos. Producto no agregado.");
+        }
     }
 
     private void menuConsultarPedido() {
@@ -117,13 +142,13 @@ public class PedidoVistaConsola implements PedidoVista {
             int id = Integer.parseInt(scanner.nextLine().trim());
             consultarPedidoPorId(id);
         } catch (NumberFormatException e) {
-            System.out.println("❌ ID inválido. Debe ser un número entero.");
+            System.out.println("[ERROR] ID invalido. Debe ser un numero entero.");
         }
     }
 
     public void mostrarListadoPedidos() {
         System.out.println("\n========================================================");
-        System.out.println(">>> [CAPA PRESENTACIÓN] Listando todos los pedidos");
+        System.out.println("[CAPA PRESENTACION] Listando todos los pedidos");
         System.out.println("========================================================");
 
         List<Pedido> pedidos = pedidoService.listarPedidos();
@@ -149,7 +174,7 @@ public class PedidoVistaConsola implements PedidoVista {
 
     public Pedido procesarNuevoPedido(Pedido pedido) {
         System.out.println("\n========================================================");
-        System.out.println(">>> [CAPA PRESENTACIÓN] Enviando pedido a procesamiento");
+        System.out.println("[CAPA PRESENTACION] Enviando pedido a procesamiento");
         System.out.println("Cliente: " + pedido.getCliente());
         System.out.println("Cantidad de productos: " + (pedido.getListaProductos() != null ? pedido.getListaProductos().size() : 0));
         System.out.println("========================================================");
@@ -159,19 +184,19 @@ public class PedidoVistaConsola implements PedidoVista {
             mostrarResumenPedido(pedidoProcesado);
             return pedidoProcesado;
         } catch (Exception e) {
-            System.out.println("❌ Error en el procesamiento del pedido: " + e.getMessage());
+            System.out.println("[ERROR] Error en el procesamiento del pedido: " + e.getMessage());
             return null;
         }
     }
 
     public void consultarPedidoPorId(int id) {
-        System.out.println("\n>>> [CAPA PRESENTACIÓN] Consultando pedido con ID: " + id);
+        System.out.println("\n[CAPA PRESENTACION] Consultando pedido con ID: " + id);
         Pedido pedido = pedidoService.buscarPorId(id);
         if (pedido != null) {
-            System.out.println("✔ Pedido encontrado:");
+            System.out.println("[OK] Pedido encontrado:");
             mostrarResumenPedido(pedido);
         } else {
-            System.out.println("❌ No se encontró ningún pedido con ID: " + id);
+            System.out.println("[ERROR] No se encontro ningun pedido con ID: " + id);
         }
     }
 
@@ -185,19 +210,8 @@ public class PedidoVistaConsola implements PedidoVista {
         System.out.printf("Impuestos (IVA): $%.2f%n", pedido.getImpuestos());
         System.out.printf("Total a pagar: $%.2f%n", pedido.getTotal());
         if (pedido.isRevisionFraude()) {
-            System.out.println("⚠️ Marcado por revisión de fraude: SÍ");
+            System.out.println("[ALERTA] Marcado por revision de fraude: SI");
         }
         System.out.println("-----------------------------------------------------");
-    }
-
-    public static List<Producto> obtenerCatalogoPredefinido() {
-        return List.of(
-                new Producto("Laptop Gamer", 1500.0, 0, 5),
-                new Producto("Mouse Inalámbrico", 250.0, 0, 10),
-                new Producto("Teclado Mecánico", 350.0, 0, 8),
-                new Producto("Monitor 4K", 800.0, 0, 3),
-                new Producto("Servidor Enterprise", 6000.0, 0, 2),
-                new Producto("Memoria USB 64GB", 150.0, 0, 20)
-        );
     }
 }

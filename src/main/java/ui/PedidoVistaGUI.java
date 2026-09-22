@@ -12,11 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementación gráfica moderna de la capa de presentación (Swing + FlatLaf).
- * Cumple estrictamente con las restricciones arquitectónicas de ADA6:
- * - Únicamente interactúa con PedidoService.
+ * Implementacion grafica profesional de la capa de presentacion (Swing + FlatLaf).
+ * Cumple estrictamente con las restricciones arquitectonicas de ADA6:
+ * - Unicamente interactua con PedidoService.
  * - No calcula totales, subtotales ni impuestos.
  * - No accede a estructuras de almacenamiento ni repositorios.
+ * - Libre de emojis para garantizar una interfaz formal e institucional.
  */
 public class PedidoVistaGUI extends JFrame implements PedidoVista {
     private final PedidoService pedidoService;
@@ -36,7 +37,7 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
     private JTextArea txtResumenDetalle;
 
     public PedidoVistaGUI(PedidoService pedidoService) {
-        super("Sistema de Pedidos - Arquitectura en Capas");
+        super("Sistema de Procesamiento de Pedidos - Arquitectura en Capas");
         this.pedidoService = pedidoService;
     }
 
@@ -48,11 +49,9 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
 
     private void configurarLookAndFeel() {
         try {
-            // Intenta aplicar FlatLaf estilo macOS moderno
             com.formdev.flatlaf.themes.FlatMacDarkLaf.setup();
         } catch (Throwable t) {
             try {
-                // Fallback automático al Look & Feel del sistema
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception ignored) {
             }
@@ -77,7 +76,7 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
                 crearPanelRegistro(),
                 crearPanelConsultaYListado()
         );
-        splitPane.setDividerLocation(480);
+        splitPane.setDividerLocation(490);
         splitPane.setResizeWeight(0.45);
         panelPrincipal.add(splitPane, BorderLayout.CENTER);
 
@@ -93,10 +92,10 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
                 new EmptyBorder(5, 5, 10, 5)
         ));
 
-        JLabel lblTitulo = new JLabel("🛒 Procesamiento de Pedidos");
-        lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 22));
+        JLabel lblTitulo = new JLabel("Sistema de Procesamiento de Pedidos");
+        lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 20));
 
-        JLabel lblSubtitulo = new JLabel("Estilo Arquitectónico en Capas | Presentación ➜ Negocio ➜ Datos");
+        JLabel lblSubtitulo = new JLabel("Estilo Arquitectonico en Capas: Presentacion -> Negocio -> Acceso a Datos -> Almacenamiento");
         lblSubtitulo.setFont(new Font("SansSerif", Font.PLAIN, 12));
         lblSubtitulo.setForeground(Color.GRAY);
 
@@ -108,7 +107,7 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
     private JPanel crearPanelRegistro() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder("📝 Registrar Nuevo Pedido"),
+                BorderFactory.createTitledBorder("Registrar Nuevo Pedido"),
                 new EmptyBorder(10, 10, 10, 10)
         ));
 
@@ -125,24 +124,29 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
         txtCliente = new JTextField();
         formPanel.add(txtCliente, gbc);
 
-        // Catálogo
+        // Catalogo de productos (cargado dinamicamente via PedidoService)
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.2;
-        formPanel.add(new JLabel("Producto:"), gbc);
+        formPanel.add(new JLabel("Catalogo:"), gbc);
         gbc.gridx = 1; gbc.weightx = 0.8;
         cmbCatalogo = new JComboBox<>();
         cargarCatalogo();
         formPanel.add(cmbCatalogo, gbc);
 
-        // Cantidad y Botón Añadir
+        // Cantidad y Botones
         JPanel panelCantYAdd = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         panelCantYAdd.add(new JLabel("Cantidad:"));
         spnCantidad = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
-        spnCantidad.setPreferredSize(new Dimension(70, 26));
+        spnCantidad.setPreferredSize(new Dimension(65, 26));
         panelCantYAdd.add(spnCantidad);
 
-        JButton btnAgregarProd = new JButton("➕ Agregar");
+        JButton btnAgregarProd = new JButton("Agregar a la Orden");
         btnAgregarProd.addActionListener(e -> agregarProductoActual());
         panelCantYAdd.add(btnAgregarProd);
+
+        JButton btnProductoPersonalizado = new JButton("Producto Manual");
+        btnProductoPersonalizado.setToolTipText("Ingresar un producto personalizado no presente en el catalogo");
+        btnProductoPersonalizado.addActionListener(e -> mostrarDialogoProductoPersonalizado());
+        panelCantYAdd.add(btnProductoPersonalizado);
 
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
         formPanel.add(panelCantYAdd, gbc);
@@ -150,7 +154,7 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
         panel.add(formPanel, BorderLayout.NORTH);
 
         // Tabla de productos en la orden actual
-        modeloTablaDetalle = new DefaultTableModel(new Object[]{"Producto", "Precio", "Cant."}, 0) {
+        modeloTablaDetalle = new DefaultTableModel(new Object[]{"Producto", "Precio Unit.", "Cantidad", "Existencia"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -161,10 +165,10 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
         scrollDetalle.setPreferredSize(new Dimension(300, 180));
 
         JPanel panelCentro = new JPanel(new BorderLayout(5, 5));
-        panelCentro.add(new JLabel("Productos agregados a la orden:"), BorderLayout.NORTH);
+        panelCentro.add(new JLabel("Productos incluidos en este pedido:"), BorderLayout.NORTH);
         panelCentro.add(scrollDetalle, BorderLayout.CENTER);
 
-        JButton btnQuitar = new JButton("🗑 Quitar seleccionado");
+        JButton btnQuitar = new JButton("Quitar Seleccionado");
         btnQuitar.addActionListener(e -> {
             int selected = tblDetalle.getSelectedRow();
             if (selected >= 0) {
@@ -176,11 +180,11 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
 
         panel.add(panelCentro, BorderLayout.CENTER);
 
-        // Botón Procesar y mensaje inferior
+        // Boton Procesar y estado inferior
         JPanel panelInferior = new JPanel(new BorderLayout(5, 5));
-        JButton btnProcesar = new JButton("✔ Procesar y Guardar Pedido");
-        btnProcesar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnProcesar.setPreferredSize(new Dimension(200, 40));
+        JButton btnProcesar = new JButton("Procesar y Guardar Pedido");
+        btnProcesar.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btnProcesar.setPreferredSize(new Dimension(200, 38));
         btnProcesar.addActionListener(e -> ejecutarRegistroPedido());
 
         lblMensajeRegistro = new JLabel("Listo para registrar pedido.");
@@ -196,21 +200,21 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
     private JPanel crearPanelConsultaYListado() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder("📋 Consultar y Listar Pedidos"),
+                BorderFactory.createTitledBorder("Consultar y Listar Pedidos"),
                 new EmptyBorder(10, 10, 10, 10)
         ));
 
-        // Barra superior de búsqueda
+        // Barra superior de busqueda
         JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         topBar.add(new JLabel("ID Pedido:"));
         txtBuscarId = new JTextField(6);
         topBar.add(txtBuscarId);
 
-        JButton btnBuscar = new JButton("🔍 Consultar");
+        JButton btnBuscar = new JButton("Buscar");
         btnBuscar.addActionListener(e -> ejecutarConsultaPorId());
         topBar.add(btnBuscar);
 
-        JButton btnRefrescar = new JButton("🔄 Actualizar Tabla");
+        JButton btnRefrescar = new JButton("Actualizar Tabla");
         btnRefrescar.addActionListener(e -> refrescarTablaPedidos());
         topBar.add(btnRefrescar);
 
@@ -218,7 +222,7 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
 
         // Tabla de pedidos registrados
         modeloTablaPedidos = new DefaultTableModel(
-                new Object[]{"ID", "Cliente", "Subtotal", "Desc.", "IVA", "Total", "Estado"}, 0
+                new Object[]{"ID", "Cliente", "Subtotal", "Descuento", "IVA", "Total", "Estado"}, 0
         ) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -242,7 +246,7 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
         txtResumenDetalle.setEditable(false);
         txtResumenDetalle.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane scrollResumen = new JScrollPane(txtResumenDetalle);
-        scrollResumen.setBorder(BorderFactory.createTitledBorder("Detalle del Pedido Seleccionado"));
+        scrollResumen.setBorder(BorderFactory.createTitledBorder("Detalle del Pedido"));
 
         JSplitPane splitVertical = new JSplitPane(
                 JSplitPane.VERTICAL_SPLIT,
@@ -257,8 +261,12 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
     }
 
     private void cargarCatalogo() {
-        for (Producto prod : PedidoVistaConsola.obtenerCatalogoPredefinido()) {
-            cmbCatalogo.addItem(new ProductoItem(prod));
+        cmbCatalogo.removeAllItems();
+        List<Producto> catalogo = pedidoService.obtenerCatalogoProductos();
+        if (catalogo != null) {
+            for (Producto prod : catalogo) {
+                cmbCatalogo.addItem(new ProductoItem(prod));
+            }
         }
     }
 
@@ -280,36 +288,82 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
         modeloTablaDetalle.addRow(new Object[]{
                 nuevoProd.getNombre(),
                 String.format("$%.2f", nuevoProd.getPrecio()),
-                nuevoProd.getCantidad()
+                nuevoProd.getCantidad(),
+                nuevoProd.getExistencia()
         });
-        lblMensajeRegistro.setText("✔ Producto añadido a la orden temporal.");
+        lblMensajeRegistro.setText("[INFO] Producto agregado a la orden.");
+    }
+
+    private void mostrarDialogoProductoPersonalizado() {
+        JTextField txtNombre = new JTextField();
+        JTextField txtPrecio = new JTextField();
+        JTextField txtCant = new JTextField("1");
+        JTextField txtStock = new JTextField("10");
+
+        JPanel form = new JPanel(new GridLayout(4, 2, 6, 6));
+        form.add(new JLabel("Nombre del producto:"));
+        form.add(txtNombre);
+        form.add(new JLabel("Precio unitario:"));
+        form.add(txtPrecio);
+        form.add(new JLabel("Cantidad a solicitar:"));
+        form.add(txtCant);
+        form.add(new JLabel("Existencia en inventario:"));
+        form.add(txtStock);
+
+        int opt = JOptionPane.showConfirmDialog(
+                this, form, "Ingresar Producto Personalizado",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (opt == JOptionPane.OK_OPTION) {
+            try {
+                String nombre = txtNombre.getText().trim();
+                if (nombre.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "El nombre del producto no puede estar vacio.", "Error de Validacion", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                double precio = Double.parseDouble(txtPrecio.getText().trim());
+                int cantidad = Integer.parseInt(txtCant.getText().trim());
+                int existencia = Integer.parseInt(txtStock.getText().trim());
+
+                Producto p = new Producto(nombre, precio, cantidad, existencia);
+                productosOrdenActual.add(p);
+                modeloTablaDetalle.addRow(new Object[]{
+                        p.getNombre(),
+                        String.format("$%.2f", p.getPrecio()),
+                        p.getCantidad(),
+                        p.getExistencia()
+                });
+                lblMensajeRegistro.setText("[INFO] Producto personalizado agregado a la orden.");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Precio, cantidad o existencia no tienen formato numerico valido.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void ejecutarRegistroPedido() {
         String cliente = txtCliente.getText().trim();
         if (cliente.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El nombre del cliente no puede estar vacío.", "Validación", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "El nombre del cliente no puede estar vacio.", "Validacion", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         if (productosOrdenActual.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Debe agregar al menos un producto a la orden.", "Validación", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Debe agregar al menos un producto a la orden.", "Validacion", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         Pedido pedido = new Pedido(cliente, new ArrayList<>(productosOrdenActual));
 
         try {
-            // Se solicita la operación ÚNICAMENTE a la capa de negocio
             Pedido procesado = pedidoService.registrar(pedido);
 
             if (procesado != null) {
-                lblMensajeRegistro.setText("✔ Pedido #" + procesado.getId() + " registrado con éxito.");
+                lblMensajeRegistro.setText("[OK] Pedido #" + procesado.getId() + " registrado con exito.");
                 JOptionPane.showMessageDialog(this,
                         "Pedido registrado correctamente.\nID: " + procesado.getId() + "\nTotal: $" + String.format("%.2f", procesado.getTotal()),
-                        "Confirmación", JOptionPane.INFORMATION_MESSAGE);
+                        "Confirmacion", JOptionPane.INFORMATION_MESSAGE);
 
-                // Limpiar formulario de captura
                 txtCliente.setText("");
                 productosOrdenActual.clear();
                 modeloTablaDetalle.setRowCount(0);
@@ -319,15 +373,15 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
                 mostrarDetallePedido(procesado);
             }
         } catch (Exception ex) {
-            lblMensajeRegistro.setText("❌ " + ex.getMessage());
-            JOptionPane.showMessageDialog(this, "Error de validación o negocio:\n" + ex.getMessage(), "Error al Registrar", JOptionPane.ERROR_MESSAGE);
+            lblMensajeRegistro.setText("[ERROR] " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error de validacion o negocio:\n" + ex.getMessage(), "Error al Registrar", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void ejecutarConsultaPorId() {
         String idStr = txtBuscarId.getText().trim();
         if (idStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese un ID de pedido.", "Atención", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Ingrese un ID de pedido.", "Atencion", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -337,10 +391,10 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
             if (p != null) {
                 mostrarDetallePedido(p);
             } else {
-                txtResumenDetalle.setText("❌ No se encontró ningún pedido con ID: " + id);
+                txtResumenDetalle.setText("[ERROR] No se encontro ningun pedido con ID: " + id);
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "El ID debe ser un numero entero.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -378,13 +432,13 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
         sb.append(String.format(" IVA (16%%):      $%10.2f%n", p.getImpuestos()));
         sb.append(String.format(" TOTAL A PAGAR:  $%10.2f%n", p.getTotal()));
         if (p.isRevisionFraude()) {
-            sb.append(" ⚠️ ALERTA: Marcado para revisión de fraude (> $5,000)\n");
+            sb.append(" [ALERTA] Marcado para revision de fraude (> $5,000)\n");
         }
         sb.append("-----------------------------------------\n");
         sb.append(" Productos incluidos:\n");
         if (p.getListaProductos() != null) {
             for (Producto prod : p.getListaProductos()) {
-                sb.append(String.format("  • %-20s x %-3d ($%.2f c/u)%n",
+                sb.append(String.format("  - %-20s x %-3d ($%.2f c/u)%n",
                         prod.getNombre(), prod.getCantidad(), prod.getPrecio()));
             }
         }
@@ -401,7 +455,7 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
 
         @Override
         public String toString() {
-            return String.format("%s - $%.2f (Stock: %d)",
+            return String.format("%s - $%.2f (Existencia: %d)",
                     producto.getNombre(), producto.getPrecio(), producto.getExistencia());
         }
     }

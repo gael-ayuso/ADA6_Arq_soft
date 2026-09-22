@@ -56,4 +56,8 @@ public class PedidoService {
     public List<Pedido> listarPedidos() {
         return this.pedidoRepository.listarTodos();
     }
+
+    public List<business.models.Producto> obtenerCatalogoProductos() {
+        return dataaccess.CatalogoProductosArchivo.cargarCatalogo();
+    }
 }
