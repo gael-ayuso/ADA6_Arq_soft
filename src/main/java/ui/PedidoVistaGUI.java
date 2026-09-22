@@ -11,14 +11,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Implementacion grafica profesional de la capa de presentacion (Swing + FlatLaf).
- * Cumple estrictamente con las restricciones arquitectonicas de ADA6:
- * - Unicamente interactua con PedidoService.
- * - No calcula totales, subtotales ni impuestos.
- * - No accede a estructuras de almacenamiento ni repositorios.
- * - Libre de emojis para garantizar una interfaz formal e institucional.
- */
 public class PedidoVistaGUI extends JFrame implements PedidoVista {
     private final PedidoService pedidoService;
 
@@ -37,7 +29,6 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
     private JTextArea txtResumenDetalle;
 
     public PedidoVistaGUI(PedidoService pedidoService) {
-        super("Sistema de Procesamiento de Pedidos - Arquitectura en Capas");
         this.pedidoService = pedidoService;
     }
 
@@ -95,12 +86,7 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
         JLabel lblTitulo = new JLabel("Sistema de Procesamiento de Pedidos");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 20));
 
-        JLabel lblSubtitulo = new JLabel("Estilo Arquitectonico en Capas: Presentacion -> Negocio -> Acceso a Datos -> Almacenamiento");
-        lblSubtitulo.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblSubtitulo.setForeground(Color.GRAY);
-
         header.add(lblTitulo, BorderLayout.NORTH);
-        header.add(lblSubtitulo, BorderLayout.SOUTH);
         return header;
     }
 
@@ -187,11 +173,7 @@ public class PedidoVistaGUI extends JFrame implements PedidoVista {
         btnProcesar.setPreferredSize(new Dimension(200, 38));
         btnProcesar.addActionListener(e -> ejecutarRegistroPedido());
 
-        lblMensajeRegistro = new JLabel("Listo para registrar pedido.");
-        lblMensajeRegistro.setFont(new Font("SansSerif", Font.PLAIN, 12));
-
         panelInferior.add(btnProcesar, BorderLayout.NORTH);
-        panelInferior.add(lblMensajeRegistro, BorderLayout.SOUTH);
         panel.add(panelInferior, BorderLayout.SOUTH);
 
         return panel;
