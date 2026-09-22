@@ -4,15 +4,22 @@ import business.models.Pedido;
 import business.services.Tuberia;
 import business.services.filtros.*;
 import dataaccess.PedidoRepository;
+import dataaccess.ProductoRepository;
+import dataaccess.ProductoRepositoryArchivo;
 
 import java.util.List;
 
 public class PedidoService {
     private final PedidoRepository pedidoRepository;
+    private final ProductoRepository productoRepository;
     private final Tuberia tuberia;
 
     public PedidoService(PedidoRepository pedidoRepository) {
-        this(pedidoRepository, new Tuberia(List.of(
+        this(pedidoRepository, new ProductoRepositoryArchivo());
+    }
+
+    public PedidoService(PedidoRepository pedidoRepository, ProductoRepository productoRepository) {
+        this(pedidoRepository, productoRepository, new Tuberia(List.of(
                 new ValidarDatos(),
                 new ComprobarDisponibilidad(),
                 new CalcularSubtotal(),
@@ -24,8 +31,9 @@ public class PedidoService {
         )));
     }
 
-    public PedidoService(PedidoRepository pedidoRepository, Tuberia tuberia) {
+    public PedidoService(PedidoRepository pedidoRepository, ProductoRepository productoRepository, Tuberia tuberia) {
         this.pedidoRepository = pedidoRepository;
+        this.productoRepository = productoRepository;
         this.tuberia = tuberia;
     }
 
@@ -54,6 +62,6 @@ public class PedidoService {
     }
 
     public List<business.models.Producto> obtenerCatalogoProductos() {
-        return dataaccess.CatalogoProductosArchivo.cargarCatalogo();
+        return this.productoRepository.obtenerTodos();
     }
 }
