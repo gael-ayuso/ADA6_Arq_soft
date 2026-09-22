@@ -170,7 +170,7 @@ public class PedidoRepositoryArchivo implements PedidoRepository {
                 try {
                     estado = EstadoPedido.valueOf(partes[6]);
                 } catch (IllegalArgumentException e) {
-                    estado = EstadoPedido.PROCESADO;
+                    estado = EstadoPedido.PEDIDO_PROCESADO;
                 }
             }
 

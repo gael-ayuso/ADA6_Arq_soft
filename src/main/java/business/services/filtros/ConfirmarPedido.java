@@ -13,7 +13,7 @@ public class ConfirmarPedido implements Filtro{
         if (pedido.isRevisionFraude()) {
             pedido.setEstado(EstadoPedido.PEDIDO_MARCADO_COMO_FRAUDE);
         } else {
-            pedido.setEstado(EstadoPedido.PROCESADO);
+            pedido.setEstado(EstadoPedido.PEDIDO_PROCESADO);
         }
         return pedido;
 

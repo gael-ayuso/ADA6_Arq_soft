@@ -9,13 +9,4 @@ public enum EstadoPedido {
     PEDIDO_MARCADO_COMO_FRAUDE,
     PEDIDO_CONFIRMADO,
     PEDIDO_PROCESADO,
-    PROCESADO;
-
-    @Override
-    public String toString() {
-        if (this == PEDIDO_PROCESADO || this == PROCESADO) {
-            return "PROCESADO";
-        }
-        return name();
-    }
 }
